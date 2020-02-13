@@ -9,8 +9,9 @@ console.log(foods)
 class App extends Component {
 
   state = {
-    foods,
-    foodForm:false
+    foods: foods, //All the foods at first but not later
+    allFoods: foods, //All the food always 
+    showForm:true
   }
 
   showFoods = () => {
@@ -20,56 +21,74 @@ class App extends Component {
     return foodList;
   }
 
-  toggleFoodForm = () => {
-    this.setState({
-      foodForm: !this.state.foodForm
-    })
-  }
-
-  handleFormSubmit = (e) => {
+  handleSubmit = (e) => {
     e.preventDefault()
-    this.toggleFoodForm()
-    console.log('submit ', this.state)
+    console.log('submit ',this.state)
     let newFoods = [...this.state.foods]
     newFoods.unshift({
-      name:this.state.food,
-      calories:null,
-      quantity:1,
-      image:null
+      name    :this.state.name,
+      image   :this.state.image,
+      calories:this.state.calories
     })
 
     this.setState({
-      foods:newFoods
+      foods:newFoods,
+      allFoods:newFoods
+    })
+
+  }
+
+  handleTypingIntoInputBoxes = (e) => {
+    console.log(e.target.name, '=', e.target.value)
+    this.setState({
+      [e.target.name]:e.target.value //calories:5000, name:pizza, image:http://image.png
     })
   }
 
-  handleInputChange = (e) => {
-    console.log('change', e.target.name, e.target.value)
-    this.setState( { [e.target.name] : e.target.value } ) //food : 'lasagn'
-  }
-
-  showFoodForm = () => {
-    if(this.state.foodForm){
-      return (
-      <form onSubmit={this.handleFormSubmit}>
-        <input onChange={this.handleInputChange} type="text" name="food"/>
-        <input  type="submit" />
+  showMeTheForm = () => {
+    if(this.state.showForm){
+    return (
+      <form onSubmit={this.handleSubmit}>
+        <input type="text" onChange={this.handleTypingIntoInputBoxes} name="name" placeholder="name" />
+        <input type="text" onChange={this.handleTypingIntoInputBoxes} name="calories" placeholder="calories" />
+        <input type="text" onChange={this.handleTypingIntoInputBoxes} name="image" placeholder="image" />
+        <input type="submit" />
       </form>
-      )
+    )
     } else {
-      return <button onClick={this.toggleFoodForm}>Add New Food</button>
+      return ''
     }
   }
-  
+
+  toggleFoodFormState = () => {
+    this.setState({
+      showForm:!this.state.showForm  //opposite true = !false, false = !true
+    })
+  }
+
+  searchFood = (e) => {
+    console.log(e.target.value, )
+    let newFoods = [...this.state.allFoods] //made a copy 
+    let filteredFoods = newFoods.filter(eachFood=>{ //filtered teh copy 
+      return eachFood.name.toLowerCase().includes(e.target.value.toLowerCase())  //piz {name:Pizza} what u type is equal to the name of the food return it 
+    })
+    this.setState({ 
+      foods:filteredFoods //set the state to be the new goods
+    })
+
+  }
 
   render() {
     return (
       <div className="App">
         <br></br>
-        {this.showFoodForm()}
         <br></br>
 
+        <input type="text" placeholder="Search .... " name="search" onChange={this.searchFood}/>
+
+        {this.showMeTheForm()}
         
+        <button onClick={this.toggleFoodFormState}>Add Food</button>
 
         {this.showFoods()}
 
